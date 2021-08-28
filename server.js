@@ -2,6 +2,10 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const util = require("util");
+
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
 //Set up server
 const app = express();
@@ -11,29 +15,42 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"))
 
-app.get('/api/notes', (req, res) => {
-    fs.readFile(path.join(__dirname, "/db/db.json"), (err,data) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(data);
-        };
-    });
+app.get('/api/notes',(req, res) => {
+    readFileAsync("./db/db.json","utf8").then(function(data) {
+        notes = [].concat(JSON.parse(data))
+        res.json(notes);
+    })
 });
 
 app.post('/api/notes', (req, res) => {
-    let notes = JSON.parse(fs.readFileSync("/db/db.json"));
-    let newNotes = req.body;
-    newNotes.id = uniqueId();
-    notes.push(newNotes);
-    fs.writeFileSync("/db/db.json", JSON.stringify(notes), (err) => {
-        if (err) {
-            console.log(err)
-        } else {
-            res.send(data);
-        };
-    });
+    const note = req.body;
+    readFileAsync("./db/db.json", "utf8").then(function(data) {
+        const notes = [].concat(JSON.parse(data));
+        note.id = notes.length + 1
+        notes.push(note);
+        return notes
+    }).then(function(notes) {
+        writeFileAsync("./db/db.json", JSON.strongify(notes))
+        res.json(note);
+    })
 });
+
+app.delete("/api/notes/:id"),(req,res) => {
+    const idDelete = parseInt(req.params.id);
+    readFileAsync("./db/db.json","utf8").then(function(data) {
+        notes;
+        const newNotes = []
+        for (let i = 0; i<notes.length; i++) {
+            if(idDelete !== notes[i].id) {
+                newNotes.push(notes[i])
+            }
+        }
+        return newNotes
+    }).then(function(notes) {
+        writeFileAsync("./db/db.json", JSON.stringify(notes))
+        res.send('saved');
+    })
+}
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
 app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, '/public/notes.html')));
