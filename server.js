@@ -3,23 +3,40 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-// Sets up the Express App
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")))
+app.use(express.static("public"))
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, './public/index.html')));
-app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, './public/notes.html')));
 app.get('/api/notes', (req, res) => {
-    let notes = fs.readFileSync(path.join(__dirname, "./db/db.json"))
-    notes = JSON.parse(notes)
-    res.json(notes)
-})
+    fs.readFile(path.join(__dirname, "/db/db.json"), (err,data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(data);
+        };
+    });
+});
+
+app.post('/api/notes', (req, res) => {
+    let notes = JSON.parse(fs.readFileSync("/db/db.json"));
+    let newNotes = req.body;
+    newNotes.id = uniqueId();
+    notes.push(newNotes);
+    fs.writeFileSync("/db/db.json", JSON.stringify(notes), (err) => {
+        if (err) {
+            console.log(err)
+        } else {
+            res.send(data);
+        };
+    });
+});
+
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
+app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, '/public/notes.html')));
 
 app.listen(PORT, () => {
     console.log("App is runnning on http://localhost:" + PORT)
