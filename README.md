@@ -22,11 +22,10 @@ WHEN I click on an existing note in the list in the left-hand column
 THEN that note appears in the right-hand column
 WHEN I click on the Write icon in the navigation at the top of the page
 THEN I am presented with empty fields to enter a new note title and the note’s text in the right-hand column
-
-$$ Images
+## Images
 ![Screen Shot 2021-09-03 at 2 23 34 PM copy](https://user-images.githubusercontent.com/81110930/132050698-8b40bb65-c28d-421e-853b-85539219aa2c.png)
 ![Screen Shot 2021-09-03 at 2 24 04 PM (2)](https://user-images.githubusercontent.com/81110930/132050771-7f98fa2c-8931-4f91-9ee5-b0fe095de725.png)
 
-$$Links
+## Links
 * https://github.com/andadam24/11_AA_NoteTaker
 * https://andadam24.github.io/11_AA_NoteTaker/
